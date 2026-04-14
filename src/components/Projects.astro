@@ -1,19 +1,35 @@
 ---
+import { getCollection } from 'astro:content';
 
+const projects = await getCollection('projects');
+const base = import.meta.env.BASE_URL;
 ---
 
-<div class="flex flex-col justify-center items-center mt-[50vh]" id="projects">
-    <div>
-        <h1 class="text-4xl font-bold text-mocha-pink">Projects</h1>
-    </div>
+<section class="flex flex-col items-center mt-[50vh] px-6" id="projects">
+  <h1 class="text-4xl font-bold text-mocha-pink mb-16">Projects</h1>
 
-    <!-- Flexbox Container -->
-    <div class="flex flex-wrap justify-center gap-4 my-10 text-center">
-        <div class="flex flex-col items-center justify-center bg-mocha-surface1 m-2 p-2 rounded-xl aspect-square hover:shadow-lg hover:scale-105 transition-all duration-200">
-                <h2 class="text-xl my-4">Sportschützen-Menziken</h2>
-                <a target="_blank" class="p-2 bg-mocha-surface1 text-mocha-green rounded hover:bg-mocha-green border-mocha-green border-2 hover:text-mocha-crust" href="http://www.sportschuetzen-menziken.ch">View Project <i class="bi bi-arrow-right"></i></a>
+  <div class="w-full max-w-2xl flex flex-col gap-3">
+    {projects.map((project) => (
+      <a
+        href={`${base}projects/${project.slug}`}
+        class="group flex items-center justify-between px-5 py-4 rounded-lg bg-mocha-surface0 hover:bg-mocha-surface1 border border-mocha-surface1 hover:border-mocha-surface2 transition-all duration-200"
+      >
+        <div class="flex flex-col gap-1 min-w-0">
+          <span class="text-mocha-text font-medium group-hover:text-mocha-pink transition-colors duration-150 truncate">
+            {project.data.title}
+          </span>
+          <span class="text-sm text-mocha-subtext0 truncate">
+            {project.data.description}
+          </span>
         </div>
 
-    </div>
-</div>
-
+        <div class="flex items-center gap-4 ml-4 shrink-0">
+          {project.data.tags && project.data.tags.slice(0, 2).map((tag) => (
+            <span class="hidden sm:inline text-xs text-mocha-overlay2">{tag}</span>
+          ))}
+          <i class="bi bi-arrow-right text-mocha-overlay1 group-hover:text-mocha-pink group-hover:translate-x-1 transition-all duration-150"></i>
+        </div>
+      </a>
+    ))}
+  </div>
+</section>

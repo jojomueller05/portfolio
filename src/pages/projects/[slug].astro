@@ -1,0 +1,262 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+export async function getStaticPaths() {
+  const projects = await getCollection('projects');
+  return projects.map((project) => ({
+    params: { slug: project.slug },
+    props: { project },
+  }));
+}
+
+const { project } = Astro.props;
+const { Content } = await render(project);
+const { title, description, tags, liveUrl, repoUrl } = project.data;
+const base = import.meta.env.BASE_URL;
+---
+
+<BaseLayout title={title}>
+  <main 
+    class="max-w-2xl mx-auto px-6 pt-16 pb-32 text-mocha-text"
+    x-data="{ 
+      lightbox: { open: false, src: '', alt: '' },
+      init() {
+        this.$nextTick(() => {
+          const article = this.$refs.article;
+          if (!article) return;
+          
+          article.querySelectorAll('img').forEach(img => {
+            img.style.cursor = 'zoom-in';
+            img.classList.add('hover:opacity-90', 'transition-opacity');
+            img.addEventListener('click', (e) => {
+              this.openLightbox(img.src, img.alt);
+            });
+          });
+        });
+      },
+      openLightbox(src, alt) {
+        this.lightbox = { open: true, src, alt };
+        document.body.style.overflow = 'hidden';
+      },
+      closeLightbox() {
+        this.lightbox.open = false;
+        document.body.style.overflow = '';
+      }
+    }"
+    @keydown.escape.window="closeLightbox()"
+  >
+    <!-- Back -->
+    <a
+      href={`${base}#projects`}
+      class="inline-flex items-center gap-2 text-xs text-mocha-overlay1 hover:text-mocha-text transition-colors duration-150 mb-14 tracking-widest uppercase"
+    >
+      <i class="bi bi-arrow-left"></i> Projects
+    </a>
+
+    <!-- Title block -->
+    <div class="mb-10">
+      <h1 class="text-3xl font-bold text-mocha-text leading-tight mb-3">{title}</h1>
+      <p class="text-mocha-subtext1 leading-relaxed">{description}</p>
+    </div>
+
+    <!-- Meta row: tags + links -->
+    <div class="flex flex-wrap items-center justify-between gap-4 mb-12 pb-6 border-b border-mocha-surface1">
+      <div class="flex flex-wrap gap-2">
+        {tags && tags.map((tag) => (
+          <span class="text-xs px-2.5 py-1 rounded bg-mocha-surface0 text-mocha-overlay2 border border-mocha-surface2">
+            {tag}
+          </span>
+        ))}
+      </div>
+      <div class="flex gap-3">
+        {liveUrl && (
+          <a
+            href={liveUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center gap-1.5 text-sm text-mocha-green hover:text-mocha-text transition-colors duration-150"
+          >
+            <i class="bi bi-box-arrow-up-right text-xs"></i> Live
+          </a>
+        )}
+        {repoUrl && (
+          <a
+            href={repoUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center gap-1.5 text-sm text-mocha-blue hover:text-mocha-text transition-colors duration-150"
+          >
+            <i class="bi bi-github text-xs"></i> Source
+          </a>
+        )}
+      </div>
+    </div>
+
+    <!-- Markdown content -->
+    <article class="prose-project" x-ref="article">
+      <Content />
+    </article>
+
+    <!-- Lightbox Modal -->
+    <div
+      x-show="lightbox.open"
+      x-transition.opacity.duration.200ms
+      class="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style="background-color: rgba(0, 0, 0, 0.9); backdrop-filter: blur(4px);"
+      @click.self="closeLightbox()"
+      x-cloak
+    >
+      <button
+        @click="closeLightbox()"
+        class="absolute top-6 right-6 text-white/70 hover:text-white transition-colors z-10"
+        aria-label="Close lightbox"
+      >
+        <i class="bi bi-x-lg text-3xl"></i>
+      </button>
+
+      <div class="relative max-w-7xl max-h-[90vh] w-full h-full flex items-center justify-center">
+        <img
+          :src="lightbox.src"
+          :alt="lightbox.alt"
+          class="max-w-full max-h-full object-contain rounded-lg"
+          @click.stop
+        />
+      </div>
+
+      <div 
+        x-show="lightbox.alt"
+        class="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/60 text-sm px-4 py-2 rounded-full bg-black/30 backdrop-blur-sm"
+        x-text="lightbox.alt"
+      ></div>
+    </div>
+
+  </main>
+</BaseLayout>
+
+<style is:global>
+  [x-cloak] { display: none !important; }
+</style>
+
+<style>
+  /* ... keep all your existing styles ... */
+  .prose-project :global(h2) {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--color-mocha-subtext1);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-top: 3rem;
+    margin-bottom: 1rem;
+  }
+
+  .prose-project :global(h3) {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-mocha-lavender);
+    margin-top: 2rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .prose-project :global(p) {
+    color: var(--color-mocha-text);
+    line-height: 1.85;
+    margin-bottom: 1.25rem;
+  }
+
+  .prose-project :global(ul),
+  .prose-project :global(ol) {
+    color: var(--color-mocha-subtext1);
+    padding-left: 1.25rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .prose-project :global(li) {
+    margin-bottom: 0.35rem;
+    line-height: 1.75;
+  }
+
+  .prose-project :global(ul li)::marker {
+    color: var(--color-mocha-surface2);
+  }
+
+  .prose-project :global(ol li)::marker {
+    color: var(--color-mocha-overlay1);
+  }
+
+  .prose-project :global(img) {
+    width: 100%;
+    border-radius: 0.5rem;
+    border: 1px solid var(--color-mocha-surface1);
+    margin: 2rem 0;
+    display: block;
+    cursor: zoom-in !important;
+  }
+
+  .prose-project :global(img:hover) {
+    opacity: 0.9;
+  }
+
+  .prose-project :global(img + em) {
+    display: block;
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--color-mocha-overlay1);
+    margin-top: -1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .prose-project :global(code) {
+    background-color: var(--color-mocha-surface0);
+    color: var(--color-mocha-peach);
+    padding: 0.15em 0.4em;
+    border-radius: 0.25rem;
+    font-size: 0.875em;
+  }
+
+  .prose-project :global(pre) {
+    background-color: var(--color-mocha-mantle);
+    border: 1px solid var(--color-mocha-surface1);
+    border-radius: 0.5rem;
+    padding: 1.25rem;
+    overflow-x: auto;
+    margin: 1.5rem 0;
+  }
+
+  .prose-project :global(pre code) {
+    background: none;
+    color: var(--color-mocha-text);
+    padding: 0;
+    font-size: 0.875em;
+  }
+
+  .prose-project :global(blockquote) {
+    border-left: 2px solid var(--color-mocha-surface2);
+    padding-left: 1.25rem;
+    color: var(--color-mocha-subtext1);
+    font-style: italic;
+    margin: 1.75rem 0;
+  }
+
+  .prose-project :global(a) {
+    color: var(--color-mocha-blue);
+    text-decoration-color: var(--color-mocha-surface2);
+    text-underline-offset: 3px;
+    transition: color 0.15s;
+  }
+
+  .prose-project :global(a:hover) {
+    color: var(--color-mocha-sky);
+  }
+
+  .prose-project :global(hr) {
+    border: none;
+    border-top: 1px solid var(--color-mocha-surface1);
+    margin: 2.5rem 0;
+  }
+
+  .prose-project :global(strong) {
+    color: var(--color-mocha-text);
+    font-weight: 600;
+  }
+</style>
