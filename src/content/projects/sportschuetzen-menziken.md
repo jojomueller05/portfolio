@@ -130,6 +130,8 @@ This was a headache that a VPS would have avoided entirely, but solving it was s
 
 ## Conclusion
 
-This project was a valuable learning experience. I gained a deep appreciation for the simplicity of Slim PHP and the power of modern frontend tools like Tailwind and Alpine.js—even within the tight confines of a cPanel‑based hosting plan. The only remaining friction point is handling database migrations manually. If the club eventually moves to a more flexible hosting platform, that's the first thing I'll automate.
+This project was a valuable learning experience. I gained a deep appreciation for the simplicity of Slim PHP and the power of modern frontend tools like Tailwind and Alpine.js even within the tight confines of a cPanel‑based hosting plan.
 
-Despite the constraints, the result is a fast, secure, and fully custom website that meets the club's needs and can be managed by non‑technical members. It was a satisfying blend of pragmatic engineering and real‑world problem solving.
+The project is currently in a final testing phase with a select group of club members to ensure everything runs smoothly in the live environment. Based on the initial positive feedback and successful completion of this staging period, the site is slated to go fully public as the club's primary web presence.
+
+The only remaining technical friction point is handling database migrations manually. If the club eventually moves to a more flexible hosting platform, that's the first thing I'll automate. Despite the constraints, the result is a fast, secure, and fully custom website that meets the club's needs and can be managed by non‑technical members. It was a satisfying blend of pragmatic engineering and real‑world problem solving.
