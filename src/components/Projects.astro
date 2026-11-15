@@ -1,35 +1,51 @@
 ---
-import { getCollection } from 'astro:content';
+import { getCollection } from "astro:content";
 
-const projects = await getCollection('projects');
+const projects = await getCollection("projects");
 const base = import.meta.env.BASE_URL;
 ---
 
-<section class="flex flex-col items-center mt-[50vh] px-6" id="projects">
-  <h1 class="text-4xl font-bold text-mocha-pink mb-16">Projects</h1>
+<section id="projects" class="mx-auto max-w-6xl scroll-mt-24 px-6 py-24 md:px-8 md:py-32">
+    <div class="reveal mb-12 md:mb-16">
+        <h2 class="text-3xl font-bold tracking-tight text-mocha-pink md:text-4xl">Projects</h2>
+        <div class="mt-5 h-px w-16 bg-gradient-to-r from-mocha-pink/70 to-transparent"></div>
+    </div>
 
-  <div class="w-full max-w-2xl flex flex-col gap-3">
-    {projects.map((project) => (
-      <a
-        href={`${base}projects/${project.slug}`}
-        class="group flex items-center justify-between px-5 py-4 rounded-lg bg-mocha-surface0 hover:bg-mocha-surface1 border border-mocha-surface1 hover:border-mocha-surface2 transition-all duration-200"
-      >
-        <div class="flex flex-col gap-1 min-w-0">
-          <span class="text-mocha-text font-medium group-hover:text-mocha-pink transition-colors duration-150 truncate">
-            {project.data.title}
-          </span>
-          <span class="text-sm text-mocha-subtext0 truncate">
-            {project.data.description}
-          </span>
-        </div>
+    <div class="flex flex-col gap-4">
+        {projects.map((project, index) => (
+            <a
+                href={`${base}projects/${project.slug}`}
+                class="reveal group relative flex flex-col gap-5 rounded-2xl border border-mocha-surface1/70 bg-mocha-surface0/50 p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-mocha-pink/40 hover:bg-mocha-surface0 hover:shadow-[0_20px_50px_-30px_rgba(245,194,231,0.5)] md:flex-row md:items-center md:justify-between md:p-7"
+                style={`transition-delay:${index * 70}ms`}
+            >
+                <div class="flex min-w-0 flex-col gap-2">
+                    <h3 class="text-lg font-semibold text-mocha-text transition-colors duration-200 group-hover:text-mocha-pink md:text-xl">
+                        {project.data.title}
+                    </h3>
+                    <p class="text-sm leading-relaxed text-mocha-subtext0 md:text-base">
+                        {project.data.description}
+                    </p>
+                </div>
 
-        <div class="flex items-center gap-4 ml-4 shrink-0">
-          {project.data.tags && project.data.tags.slice(0, 2).map((tag) => (
-            <span class="hidden sm:inline text-xs text-mocha-overlay2">{tag}</span>
-          ))}
-          <i class="bi bi-arrow-right text-mocha-overlay1 group-hover:text-mocha-pink group-hover:translate-x-1 transition-all duration-150"></i>
-        </div>
-      </a>
-    ))}
-  </div>
+                <div class="flex shrink-0 items-center gap-4 self-end md:ml-8 md:self-auto">
+                    {project.data.tags && (
+                        <div class="hidden flex-wrap gap-2 sm:flex">
+                            {project.data.tags.slice(0, 2).map((tag) => (
+                                <span class="rounded-full border border-mocha-surface1/80 px-3 py-1 text-xs text-mocha-subtext0">
+                                    {tag}
+                                </span>
+                            ))}
+                        </div>
+                    )}
+
+                    <span
+                        aria-hidden="true"
+                        class="flex h-10 w-10 items-center justify-center rounded-full border border-mocha-surface1 text-mocha-overlay1 transition-all duration-300 group-hover:border-mocha-pink/50 group-hover:bg-mocha-pink/10 group-hover:text-mocha-pink"
+                    >
+                        <i class="bi bi-arrow-right transition-transform duration-300 group-hover:translate-x-0.5"></i>
+                    </span>
+                </div>
+            </a>
+        ))}
+    </div>
 </section>

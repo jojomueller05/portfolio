@@ -32,6 +32,95 @@
     --font-lily-script: 'LilyScriptOne';
 }
 
+/* Ambient Catppuccin glow behind the whole page. */
+body {
+    background-color: var(--color-mocha-base);
+    background-image:
+        radial-gradient(60rem 42rem at 85% -12%, rgb(203 166 247 / 0.10), transparent 62%),
+        radial-gradient(48rem 36rem at -12% 18%, rgb(137 180 250 / 0.08), transparent 60%),
+        radial-gradient(46rem 34rem at 50% 112%, rgb(148 226 213 / 0.05), transparent 60%);
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+}
+
+html {
+    scroll-padding-top: 6rem;
+}
+
+/* Alpine: hide elements until the component is ready. */
+[x-cloak] {
+    display: none !important;
+}
+
+/* Scroll-reveal: only active once the inline script confirms JS is available. */
+.js .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition:
+        opacity 700ms cubic-bezier(0.22, 1, 0.36, 1),
+        transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.js .reveal.is-visible {
+    opacity: 1;
+    transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto !important;
+    }
+
+    .js .reveal {
+        opacity: 1;
+        transform: none;
+        transition: none;
+    }
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+::selection {
+    background-color: var(--color-mocha-mauve);
+    color: var(--color-mocha-crust);
+}
+
+:focus-visible {
+    outline: 2px solid var(--color-mocha-mauve);
+    outline-offset: 3px;
+    border-radius: 4px;
+}
+
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-mocha-surface2) transparent;
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--color-mocha-mantle);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--color-mocha-surface2);
+    border: 2px solid var(--color-mocha-mantle);
+    border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--color-mocha-overlay0);
+}
+
 @font-face {
     font-family: 'JetBrainsMono';
     src: url('/fonts/JetBrainsMonoNerdFont-Regular.ttf') format('truetype');

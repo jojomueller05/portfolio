@@ -1,66 +1,105 @@
 ---
-// Logo <> About, Portfolio, Contact <> Search...
-// BG: Base
-// Logo:
-//  Entweder: RoseWater(#f5e0dc), Teal(#94e2d5), Mauve(#cba6f7)
+const base = import.meta.env.BASE_URL;
+const linkedin = "https://www.linkedin.com/in/joël-julien-müller-27029222b";
 
-// Favicon: 48x48
-// logo navbar 40px mal 150px font: Lily Script One
+const links = [
+	{ href: `${base}#about`, label: "About", hover: "hover:text-mocha-sky", underline: "bg-mocha-sky" },
+	{ href: `${base}#skills`, label: "Skills", hover: "hover:text-mocha-red", underline: "bg-mocha-red" },
+	{ href: `${base}#projects`, label: "Projects", hover: "hover:text-mocha-pink", underline: "bg-mocha-pink" },
+	{ href: `${base}#experience`, label: "Experience", hover: "hover:text-mocha-peach", underline: "bg-mocha-peach" },
+];
 ---
 
-<div class="w-full" 
-     x-data="{ open : false }" 
-     x-effect="open ? document.body.classList.add('overflow-hidden') : document.body.classList.remove('overflow-hidden')">
-    
-    <nav class="flex items-center justify-between p-6 md:p-10 bg-mocha-base">
-        <a href="/portfolio">
-            <h1 class="text-mocha-green text-4xl font-lily-script">
-                J.J. Müller
-            </h1>
-        </a>
-
-        <button
-            class="block lg:hidden text-mocha-text text-3xl focus:outline-none z-50"
-            @click="open = !open"
-        >
-            <i class="bi" :class="open ? 'bi-x-lg' : 'bi-list'"></i>
-        </button>
-
-        <ul
-            id="menu"
-            class="hidden lg:flex text-mocha-text text-xl space-x-6 lg:space-x-10"
-        >
-            <li><a href="#about" class="hover:text-mocha-sky hover:font-bold">About</a></li>
-            <li><a href="#skills" class="hover:text-mocha-red hover:font-bold">Skills</a></li>
-            <li><a href="#projects" class="hover:text-mocha-pink hover:font-bold">Projects</a></li>
-            <li><a href="#experinece" class="hover:text-mocha-peach hover:font-bold">Experience</a></li>
-        </ul>
-
-        <div class="relative hidden lg:block">
-            <a href="https://www.linkedin.com/in/joël-julien-müller-27029222b" target="_blank">
-                <i class="bi bi-linkedin text-3xl text-mocha-text"></i>
+<div
+    class="contents"
+    x-data="{ open: false }"
+    x-effect="open ? document.body.classList.add('overflow-hidden') : document.body.classList.remove('overflow-hidden')"
+    @keydown.escape.window="open = false"
+>
+    <header
+        class="sticky top-0 z-50 border-b border-mocha-surface0/70 backdrop-blur-xl transition-colors duration-300"
+        :class="open ? 'bg-mocha-base' : 'bg-mocha-base/90'"
+    >
+        <nav class="mx-auto flex h-20 max-w-6xl items-center justify-between px-6 md:px-8" aria-label="Main navigation">
+            <a href={base} class="group flex items-center" aria-label="J.J. Müller — home">
+                <span class="font-lily-script text-3xl text-mocha-green transition-colors duration-300 group-hover:text-mocha-teal md:text-4xl">
+                    J.J. Müller
+                </span>
             </a>
-        </div>
-    </nav>
+
+            <ul class="hidden items-center gap-8 text-sm font-medium lg:flex">
+                {links.map((link) => (
+                    <li>
+                        <a href={link.href} class={`group relative text-mocha-subtext1 transition-colors duration-200 ${link.hover}`}>
+                            {link.label}
+                            <span
+                                aria-hidden="true"
+                                class={`absolute -bottom-1.5 left-0 h-px w-0 transition-all duration-300 group-hover:w-full ${link.underline}`}
+                            ></span>
+                        </a>
+                    </li>
+                ))}
+            </ul>
+
+            <div class="flex items-center gap-2">
+                <a
+                    href={linkedin}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="LinkedIn"
+                    class="hidden h-10 w-10 items-center justify-center rounded-full border border-mocha-surface1 text-mocha-subtext1 transition-all duration-200 hover:-translate-y-0.5 hover:border-mocha-blue/50 hover:bg-mocha-surface0 hover:text-mocha-blue lg:flex"
+                >
+                    <i class="bi bi-linkedin text-lg" aria-hidden="true"></i>
+                </a>
+
+                <button
+                    type="button"
+                    class="flex h-10 w-10 items-center justify-center rounded-full border border-mocha-surface1 text-mocha-text transition-colors duration-200 hover:border-mocha-mauve/50 hover:bg-mocha-surface0 lg:hidden"
+                    @click="open = !open"
+                    :aria-expanded="open ? 'true' : 'false'"
+                    aria-controls="mobile-menu"
+                    aria-label="Toggle navigation menu"
+                >
+                    <i class="bi text-xl" :class="open ? 'bi-x-lg' : 'bi-list'" aria-hidden="true"></i>
+                </button>
+            </div>
+        </nav>
+    </header>
 
     <div
-        class="fixed inset-0 z-40 bg-mocha-base flex flex-col items-center justify-center lg:hidden transition-all duration-300"
+        id="mobile-menu"
         x-show="open"
+        x-cloak
+        class="fixed inset-0 z-40 overflow-y-auto bg-mocha-base/95 px-6 pt-28 pb-12 backdrop-blur-xl lg:hidden"
         x-transition:enter="transition ease-out duration-300"
-        x-transition:enter-start="opacity-0 transform translate-x-full"
-        x-transition:enter-end="opacity-100 transform translate-x-0"
-        x-transition:leave="transition ease-in duration-300"
-        x-transition:leave-start="opacity-100 transform translate-x-0"
-        x-transition:leave-end="opacity-0 transform translate-x-full"
+        x-transition:enter-start="opacity-0 -translate-y-2"
+        x-transition:enter-end="opacity-100 translate-y-0"
+        x-transition:leave="transition ease-in duration-200"
+        x-transition:leave-start="opacity-100 translate-y-0"
+        x-transition:leave-end="opacity-0 -translate-y-2"
     >
-        <ul class="flex flex-col items-center space-y-8 text-2xl text-mocha-text">
-            <li><a href="#about" @click="open = false" class="hover:text-mocha-green">About</a></li>
-            <li><a href="#skills" @click="open = false" class="hover:text-mocha-green">Skills</a></li>
-            <li><a href="#projects" @click="open = false" class="hover:text-mocha-pink">Projects</a></li>
-            <li><a href="#experinece" @click="open = false" class="hover:text-mocha-green">Experience</a></li>
-            <li class="pt-4">
-                <a href="https://www.linkedin.com/in/joël-julien-müller-27029222b" target="_blank">
-                    <i class="bi bi-linkedin text-4xl"></i>
+        <ul class="mx-auto flex max-w-sm flex-col gap-2">
+            {links.map((link) => (
+                <li>
+                    <a
+                        href={link.href}
+                        @click="open = false"
+                        class={`flex items-center justify-between rounded-2xl border border-mocha-surface1/60 bg-mocha-surface0/40 px-5 py-4 text-xl text-mocha-text transition-colors duration-200 hover:bg-mocha-surface0 ${link.hover}`}
+                    >
+                        {link.label}
+                        <i class="bi bi-arrow-up-right text-mocha-overlay1" aria-hidden="true"></i>
+                    </a>
+                </li>
+            ))}
+            <li class="mt-4 flex justify-center">
+                <a
+                    href={linkedin}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="LinkedIn"
+                    class="flex h-14 w-14 items-center justify-center rounded-full border border-mocha-blue/30 bg-mocha-blue/10 text-mocha-blue transition-colors duration-200 hover:bg-mocha-blue/20"
+                >
+                    <i class="bi bi-linkedin text-2xl" aria-hidden="true"></i>
                 </a>
             </li>
         </ul>

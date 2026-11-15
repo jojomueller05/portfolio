@@ -1,262 +1,531 @@
 ---
-import { getCollection, render } from 'astro:content';
-import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection, render } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
 
 export async function getStaticPaths() {
-  const projects = await getCollection('projects');
-  return projects.map((project) => ({
-    params: { slug: project.slug },
-    props: { project },
-  }));
+    const projects = await getCollection("projects");
+    return projects.map((project) => ({
+        params: { slug: project.slug },
+        props: { project },
+    }));
 }
 
 const { project } = Astro.props;
 const { Content } = await render(project);
 const { title, description, tags, liveUrl, repoUrl } = project.data;
 const base = import.meta.env.BASE_URL;
+const [year, month, day] = project.data.date.split("-").map(Number);
+const formattedDate = new Date(Date.UTC(year, month - 1, day)).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    timeZone: "UTC",
+});
+
+const wordCount = (project.body ?? "").trim().split(/\s+/).filter(Boolean).length;
+const readingMinutes = Math.max(1, Math.round(wordCount / 200));
+
+const orderedProjects = (await getCollection("projects")).sort((a, b) =>
+    a.data.date.localeCompare(b.data.date),
+);
+const projectIndex = orderedProjects.findIndex((entry) => entry.slug === project.slug);
+const previousProject = orderedProjects[projectIndex - 1];
+const nextProject = orderedProjects[projectIndex + 1];
 ---
 
-<BaseLayout title={title}>
-  <main 
-    class="max-w-2xl mx-auto px-6 pt-16 pb-32 text-mocha-text"
-    x-data="{ 
-      lightbox: { open: false, src: '', alt: '' },
-      init() {
-        this.$nextTick(() => {
-          const article = this.$refs.article;
-          if (!article) return;
-          
-          article.querySelectorAll('img').forEach(img => {
-            img.style.cursor = 'zoom-in';
-            img.classList.add('hover:opacity-90', 'transition-opacity');
-            img.addEventListener('click', (e) => {
-              this.openLightbox(img.src, img.alt);
-            });
-          });
-        });
-      },
-      openLightbox(src, alt) {
-        this.lightbox = { open: true, src, alt };
-        document.body.style.overflow = 'hidden';
-      },
-      closeLightbox() {
-        this.lightbox.open = false;
-        document.body.style.overflow = '';
-      }
-    }"
-    @keydown.escape.window="closeLightbox()"
-  >
-    <!-- Back -->
-    <a
-      href={`${base}#projects`}
-      class="inline-flex items-center gap-2 text-xs text-mocha-overlay1 hover:text-mocha-text transition-colors duration-150 mb-14 tracking-widest uppercase"
+<BaseLayout title={title} description={description}>
+    <main
+        class="mx-auto max-w-3xl px-5 pb-28 pt-10 text-mocha-text sm:px-6 md:px-8 md:pb-32 md:pt-20"
+        x-data="{
+            images: [],
+            lightbox: { open: false, index: 0, src: '', alt: '' },
+            init() {
+                this.$nextTick(() => {
+                    const article = this.$refs.article;
+                    if (!article) return;
+
+                    this.images = Array.from(article.querySelectorAll('img')).map((img) => ({
+                        src: img.src,
+                        alt: img.alt || 'Project image',
+                    }));
+
+                    article.querySelectorAll('img').forEach((img, index) => {
+                        img.style.cursor = 'zoom-in';
+                        img.addEventListener('click', () => this.openLightbox(index));
+                    });
+                });
+            },
+            openLightbox(index) {
+                const image = this.images[index];
+                if (!image) return;
+                this.lightbox = { open: true, index, src: image.src, alt: image.alt };
+                document.body.style.overflow = 'hidden';
+            },
+            closeLightbox() {
+                this.lightbox.open = false;
+                document.body.style.overflow = '';
+            },
+            nextImage() {
+                if (this.images.length < 2) return;
+                this.openLightbox((this.lightbox.index + 1) % this.images.length);
+            },
+            previousImage() {
+                if (this.images.length < 2) return;
+                this.openLightbox((this.lightbox.index - 1 + this.images.length) % this.images.length);
+            },
+        }"
+        @keydown.escape.window="closeLightbox()"
+        @keydown.arrow-right.window="lightbox.open && nextImage()"
+        @keydown.arrow-left.window="lightbox.open && previousImage()"
     >
-      <i class="bi bi-arrow-left"></i> Projects
-    </a>
+        <!-- Back -->
+        <a
+            href={`${base}#projects`}
+            class="group mb-8 inline-flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-mocha-overlay2 transition-colors duration-200 hover:text-mocha-pink md:mb-12"
+        >
+            <i class="bi bi-arrow-left transition-transform duration-200 group-hover:-translate-x-0.5" aria-hidden="true"></i>
+            Projects
+        </a>
 
-    <!-- Title block -->
-    <div class="mb-10">
-      <h1 class="text-3xl font-bold text-mocha-text leading-tight mb-3">{title}</h1>
-      <p class="text-mocha-subtext1 leading-relaxed">{description}</p>
-    </div>
+        <!-- Header -->
+        <header class="reveal max-w-3xl">
+            <div class="flex flex-wrap items-center gap-3 text-[0.7rem] font-medium uppercase tracking-[0.18em] text-mocha-overlay2">
+                <time datetime={project.data.date}>{formattedDate}</time>
+                <span class="h-1 w-1 rounded-full bg-mocha-surface2" aria-hidden="true"></span>
+                <span>{readingMinutes} min read</span>
+            </div>
 
-    <!-- Meta row: tags + links -->
-    <div class="flex flex-wrap items-center justify-between gap-4 mb-12 pb-6 border-b border-mocha-surface1">
-      <div class="flex flex-wrap gap-2">
-        {tags && tags.map((tag) => (
-          <span class="text-xs px-2.5 py-1 rounded bg-mocha-surface0 text-mocha-overlay2 border border-mocha-surface2">
-            {tag}
-          </span>
-        ))}
-      </div>
-      <div class="flex gap-3">
-        {liveUrl && (
-          <a
-            href={liveUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="inline-flex items-center gap-1.5 text-sm text-mocha-green hover:text-mocha-text transition-colors duration-150"
-          >
-            <i class="bi bi-box-arrow-up-right text-xs"></i> Live
-          </a>
-        )}
-        {repoUrl && (
-          <a
-            href={repoUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="inline-flex items-center gap-1.5 text-sm text-mocha-blue hover:text-mocha-text transition-colors duration-150"
-          >
-            <i class="bi bi-github text-xs"></i> Source
-          </a>
-        )}
-      </div>
-    </div>
+            <h1 class="mt-4 text-balance text-[1.7rem] font-bold leading-[1.15] tracking-tight text-mocha-text sm:text-3xl md:mt-5 md:text-5xl md:leading-tight">
+                {title}
+            </h1>
+            <p class="mt-4 text-pretty text-[0.95rem] leading-relaxed text-mocha-subtext1 sm:text-base md:mt-5 md:text-lg">
+                {description}
+            </p>
 
-    <!-- Markdown content -->
-    <article class="prose-project" x-ref="article">
-      <Content />
-    </article>
+            <div class="mt-8 flex flex-col gap-5 border-y border-mocha-surface1/70 py-5 sm:flex-row sm:items-center sm:justify-between">
+                <div class="flex flex-wrap gap-2">
+                    {tags && tags.map((tag) => (
+                        <span class="rounded-full border border-mocha-surface1/80 bg-mocha-surface0/60 px-3 py-1 text-xs text-mocha-subtext0">
+                            {tag}
+                        </span>
+                    ))}
+                </div>
 
-    <!-- Lightbox Modal -->
-    <div
-      x-show="lightbox.open"
-      x-transition.opacity.duration.200ms
-      class="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style="background-color: rgba(0, 0, 0, 0.9); backdrop-filter: blur(4px);"
-      @click.self="closeLightbox()"
-      x-cloak
-    >
-      <button
-        @click="closeLightbox()"
-        class="absolute top-6 right-6 text-white/70 hover:text-white transition-colors z-10"
-        aria-label="Close lightbox"
-      >
-        <i class="bi bi-x-lg text-3xl"></i>
-      </button>
+                <div class="flex items-center gap-3">
+                    {liveUrl && (
+                        <a
+                            href={liveUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="inline-flex items-center gap-2 rounded-full border border-mocha-green/30 bg-mocha-green/5 px-4 py-2 text-sm text-mocha-green transition-all duration-200 hover:-translate-y-0.5 hover:bg-mocha-green/10"
+                        >
+                            <i class="bi bi-box-arrow-up-right text-xs" aria-hidden="true"></i> Live
+                        </a>
+                    )}
+                    {repoUrl && (
+                        <a
+                            href={repoUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="inline-flex items-center gap-2 rounded-full border border-mocha-blue/30 bg-mocha-blue/5 px-4 py-2 text-sm text-mocha-blue transition-all duration-200 hover:-translate-y-0.5 hover:bg-mocha-blue/10"
+                        >
+                            <i class="bi bi-github text-xs" aria-hidden="true"></i> Source
+                        </a>
+                    )}
+                </div>
+            </div>
+        </header>
 
-      <div class="relative max-w-7xl max-h-[90vh] w-full h-full flex items-center justify-center">
-        <img
-          :src="lightbox.src"
-          :alt="lightbox.alt"
-          class="max-w-full max-h-full object-contain rounded-lg"
-          @click.stop
-        />
-      </div>
+        <!-- Article -->
+        <article class="prose-project reveal mt-10 max-w-3xl min-w-0 [transition-delay:100ms] md:mt-12" x-ref="article">
+            <Content />
+        </article>
 
-      <div 
-        x-show="lightbox.alt"
-        class="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/60 text-sm px-4 py-2 rounded-full bg-black/30 backdrop-blur-sm"
-        x-text="lightbox.alt"
-      ></div>
-    </div>
+        <!-- Project navigation -->
+        <footer class="mt-20 max-w-3xl">
+            <div class="flex flex-col gap-4 border-t border-mocha-surface1/70 pt-8">
+                {previousProject && (
+                    <a
+                        href={`${base}projects/${previousProject.slug}`}
+                        class="group flex flex-col rounded-2xl border border-mocha-surface1/70 bg-gradient-to-br from-mocha-surface0/60 to-mocha-mantle/60 p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-mocha-pink/40 hover:shadow-[0_18px_45px_-30px_rgba(245,194,231,0.45)] md:p-7"
+                    >
+                        <span class="block text-lg font-semibold leading-snug text-mocha-text transition-colors duration-200 group-hover:text-mocha-pink md:text-xl">
+                            {previousProject.data.title}
+                        </span>
+                        <span class="mt-6 flex items-center justify-end gap-2 border-t border-mocha-surface1/60 pt-4 text-xs font-medium uppercase tracking-[0.16em] text-mocha-overlay1 transition-colors duration-200 group-hover:text-mocha-pink">
+                            <i
+                                class="bi bi-arrow-left transition-transform duration-200 group-hover:-translate-x-1"
+                                aria-hidden="true"
+                            ></i>
+                            Previous project
+                        </span>
+                    </a>
+                )}
 
-  </main>
+                {nextProject && (
+                    <a
+                        href={`${base}projects/${nextProject.slug}`}
+                        class="group flex flex-col rounded-2xl border border-mocha-surface1/70 bg-gradient-to-br from-mocha-surface0/60 to-mocha-mantle/60 p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-mocha-pink/40 hover:shadow-[0_18px_45px_-30px_rgba(245,194,231,0.45)] md:p-7"
+                    >
+                        <span class="block text-lg font-semibold leading-snug text-mocha-text transition-colors duration-200 group-hover:text-mocha-pink md:text-xl">
+                            {nextProject.data.title}
+                        </span>
+                        <span class="mt-6 flex items-center justify-end gap-2 border-t border-mocha-surface1/60 pt-4 text-xs font-medium uppercase tracking-[0.16em] text-mocha-overlay1 transition-colors duration-200 group-hover:text-mocha-pink">
+                            Next project
+                            <i
+                                class="bi bi-arrow-right transition-transform duration-200 group-hover:translate-x-1"
+                                aria-hidden="true"
+                            ></i>
+                        </span>
+                    </a>
+                )}
+            </div>
+
+            <div class="mt-8 flex justify-center">
+                <a
+                    href={`${base}#projects`}
+                    class="inline-flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-mocha-overlay2 transition-colors duration-200 hover:text-mocha-pink"
+                >
+                    <i class="bi bi-grid" aria-hidden="true"></i> All projects
+                </a>
+            </div>
+        </footer>
+
+        <!-- Lightbox Modal -->
+        <div
+            x-show="lightbox.open"
+            x-transition.opacity.duration.200ms
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 backdrop-blur-sm"
+            @click.self="closeLightbox()"
+            x-cloak
+            role="dialog"
+            aria-modal="true"
+            aria-label="Project image viewer"
+        >
+            <button
+                type="button"
+                @click="closeLightbox()"
+                class="absolute right-6 top-6 z-10 flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+                aria-label="Close lightbox"
+            >
+                <i class="bi bi-x-lg text-xl" aria-hidden="true"></i>
+            </button>
+
+            <button
+                type="button"
+                x-show="images.length > 1"
+                @click.stop="previousImage()"
+                class="absolute left-3 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white/70 transition-colors hover:bg-white/10 hover:text-white md:left-6"
+                aria-label="Previous image"
+            >
+                <i class="bi bi-chevron-left text-xl" aria-hidden="true"></i>
+            </button>
+            <button
+                type="button"
+                x-show="images.length > 1"
+                @click.stop="nextImage()"
+                class="absolute right-3 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white/70 transition-colors hover:bg-white/10 hover:text-white md:right-6"
+                aria-label="Next image"
+            >
+                <i class="bi bi-chevron-right text-xl" aria-hidden="true"></i>
+            </button>
+
+            <div class="relative flex h-full w-full max-w-7xl items-center justify-center">
+                <img
+                    :src="lightbox.src"
+                    :alt="lightbox.alt"
+                    class="max-h-full max-w-full rounded-lg object-contain"
+                    @click.stop
+                />
+            </div>
+
+            <div class="absolute bottom-6 left-1/2 flex max-w-[90%] -translate-x-1/2 items-center gap-2 rounded-full bg-black/40 px-4 py-2 text-xs text-white/60 backdrop-blur-sm">
+                <span class="font-medium text-white/80" x-text="(lightbox.index + 1) + ' / ' + images.length"></span>
+                <span x-show="lightbox.alt" class="h-3 w-px bg-white/20" aria-hidden="true"></span>
+                <span x-show="lightbox.alt" class="truncate" x-text="lightbox.alt"></span>
+            </div>
+        </div>
+    </main>
 </BaseLayout>
 
+<script>
+    const copyIcon = '<i class="bi bi-clipboard"></i>';
+    const copiedIcon = '<i class="bi bi-check2"></i>';
+
+    document.querySelectorAll(".prose-project pre").forEach((pre) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "code-copy";
+        button.setAttribute("aria-label", "Copy code");
+        button.innerHTML = copyIcon;
+
+        button.addEventListener("click", async () => {
+            const code = pre.querySelector("code")?.textContent ?? pre.textContent ?? "";
+            try {
+                await navigator.clipboard.writeText(code);
+                button.innerHTML = copiedIcon;
+                button.classList.add("is-copied");
+                window.setTimeout(() => {
+                    button.innerHTML = copyIcon;
+                    button.classList.remove("is-copied");
+                }, 1600);
+            } catch {
+                // Clipboard access can be unavailable outside secure contexts.
+            }
+        });
+
+        pre.appendChild(button);
+    });
+</script>
+
 <style is:global>
-  [x-cloak] { display: none !important; }
+    .code-copy {
+        position: absolute;
+        top: 0.65rem;
+        right: 0.65rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 2rem;
+        width: 2rem;
+        border: 1px solid var(--color-mocha-surface1);
+        border-radius: 0.5rem;
+        background-color: var(--color-mocha-surface0);
+        color: var(--color-mocha-overlay2);
+        transition:
+            color 150ms ease,
+            border-color 150ms ease,
+            background-color 150ms ease;
+    }
+
+    .code-copy:hover {
+        border-color: var(--color-mocha-surface2);
+        background-color: var(--color-mocha-surface1);
+        color: var(--color-mocha-text);
+    }
+
+    .code-copy.is-copied {
+        border-color: color-mix(in srgb, var(--color-mocha-green) 45%, transparent);
+        color: var(--color-mocha-green);
+    }
 </style>
 
 <style>
-  /* ... keep all your existing styles ... */
-  .prose-project :global(h2) {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--color-mocha-subtext1);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    margin-top: 3rem;
-    margin-bottom: 1rem;
-  }
+    .prose-project {
+        font-size: 1.0625rem;
+    }
 
-  .prose-project :global(h3) {
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--color-mocha-lavender);
-    margin-top: 2rem;
-    margin-bottom: 0.6rem;
-  }
+    .prose-project :global(h2) {        margin-top: 3.5rem;
+        margin-bottom: 1.15rem;
+        padding-top: 1.75rem;
+        border-top: 1px solid var(--color-mocha-surface1);
+        font-size: 1.5rem;
+        font-weight: 700;
+        line-height: 1.3;
+        letter-spacing: -0.015em;
+        color: var(--color-mocha-text);
+        scroll-margin-top: 6.5rem;
+    }
 
-  .prose-project :global(p) {
-    color: var(--color-mocha-text);
-    line-height: 1.85;
-    margin-bottom: 1.25rem;
-  }
+    .prose-project :global(h2:first-child) {
+        margin-top: 0;
+        padding-top: 0;
+        border-top: none;
+    }
 
-  .prose-project :global(ul),
-  .prose-project :global(ol) {
-    color: var(--color-mocha-subtext1);
-    padding-left: 1.25rem;
-    margin-bottom: 1.25rem;
-  }
+    .prose-project :global(h3) {
+        margin-top: 2.25rem;
+        margin-bottom: 0.65rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--color-mocha-lavender);
+        scroll-margin-top: 6.5rem;
+    }
 
-  .prose-project :global(li) {
-    margin-bottom: 0.35rem;
-    line-height: 1.75;
-  }
+    .prose-project :global(h4) {
+        margin-top: 1.75rem;
+        margin-bottom: 0.5rem;
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--color-mocha-subtext1);
+        scroll-margin-top: 6.5rem;
+    }
 
-  .prose-project :global(ul li)::marker {
-    color: var(--color-mocha-surface2);
-  }
+    .prose-project :global(p) {
+        margin-bottom: 1.35rem;
+        line-height: 1.9;
+        color: var(--color-mocha-subtext1);
+    }
 
-  .prose-project :global(ol li)::marker {
-    color: var(--color-mocha-overlay1);
-  }
+    .prose-project :global(ul),
+    .prose-project :global(ol) {
+        margin-bottom: 1.35rem;
+        padding-left: 1.35rem;
+        color: var(--color-mocha-subtext1);
+    }
 
-  .prose-project :global(img) {
-    width: 100%;
-    border-radius: 0.5rem;
-    border: 1px solid var(--color-mocha-surface1);
-    margin: 2rem 0;
-    display: block;
-    cursor: zoom-in !important;
-  }
+    .prose-project :global(li) {
+        margin-bottom: 0.4rem;
+        line-height: 1.8;
+    }
 
-  .prose-project :global(img:hover) {
-    opacity: 0.9;
-  }
+    .prose-project :global(li::marker) {
+        color: var(--color-mocha-overlay1);
+    }
 
-  .prose-project :global(img + em) {
-    display: block;
-    text-align: center;
-    font-size: 0.8rem;
-    color: var(--color-mocha-overlay1);
-    margin-top: -1.5rem;
-    margin-bottom: 2rem;
-  }
+    .prose-project :global(img) {
+        display: block;
+        width: 100%;
+        margin: 2.25rem 0;
+        border: 1px solid var(--color-mocha-surface1);
+        border-radius: 0.75rem;
+        box-shadow: 0 24px 60px -30px rgb(0 0 0 / 0.8);
+        cursor: zoom-in !important;
+        transition:
+            border-color 200ms ease,
+            transform 400ms ease;
+    }
 
-  .prose-project :global(code) {
-    background-color: var(--color-mocha-surface0);
-    color: var(--color-mocha-peach);
-    padding: 0.15em 0.4em;
-    border-radius: 0.25rem;
-    font-size: 0.875em;
-  }
+    .prose-project :global(img:hover) {
+        border-color: var(--color-mocha-surface2);
+        transform: translateY(-2px);
+    }
 
-  .prose-project :global(pre) {
-    background-color: var(--color-mocha-mantle);
-    border: 1px solid var(--color-mocha-surface1);
-    border-radius: 0.5rem;
-    padding: 1.25rem;
-    overflow-x: auto;
-    margin: 1.5rem 0;
-  }
+    .prose-project :global(img + em) {
+        display: block;
+        margin-top: -1.6rem;
+        margin-bottom: 2.25rem;
+        text-align: center;
+        font-size: 0.8rem;
+        color: var(--color-mocha-overlay2);
+    }
 
-  .prose-project :global(pre code) {
-    background: none;
-    color: var(--color-mocha-text);
-    padding: 0;
-    font-size: 0.875em;
-  }
+    .prose-project :global(code) {
+        padding: 0.15em 0.4em;
+        border-radius: 0.3rem;
+        background-color: var(--color-mocha-surface0);
+        color: var(--color-mocha-peach);
+        font-size: 0.875em;
+    }
 
-  .prose-project :global(blockquote) {
-    border-left: 2px solid var(--color-mocha-surface2);
-    padding-left: 1.25rem;
-    color: var(--color-mocha-subtext1);
-    font-style: italic;
-    margin: 1.75rem 0;
-  }
+    .prose-project :global(pre) {
+        position: relative;
+        margin: 1.75rem 0;
+        padding: 1.35rem;
+        overflow-x: auto;
+        border: 1px solid var(--color-mocha-surface1);
+        border-radius: 0.75rem;
+        background-color: var(--color-mocha-mantle);
+    }
 
-  .prose-project :global(a) {
-    color: var(--color-mocha-blue);
-    text-decoration-color: var(--color-mocha-surface2);
-    text-underline-offset: 3px;
-    transition: color 0.15s;
-  }
+    .prose-project :global(pre code) {
+        padding: 0;
+        background: none;
+        color: var(--color-mocha-text);
+        font-size: 0.875em;
+    }
 
-  .prose-project :global(a:hover) {
-    color: var(--color-mocha-sky);
-  }
+    .prose-project :global(blockquote) {
+        margin: 1.9rem 0;
+        padding-left: 1.35rem;
+        border-left: 2px solid var(--color-mocha-lavender);
+        color: var(--color-mocha-subtext1);
+        font-style: italic;
+    }
 
-  .prose-project :global(hr) {
-    border: none;
-    border-top: 1px solid var(--color-mocha-surface1);
-    margin: 2.5rem 0;
-  }
+    .prose-project :global(a) {
+        color: var(--color-mocha-blue);
+        text-decoration: underline;
+        text-decoration-color: var(--color-mocha-surface2);
+        text-underline-offset: 3px;
+        transition: color 150ms ease;
+    }
 
-  .prose-project :global(strong) {
-    color: var(--color-mocha-text);
-    font-weight: 600;
-  }
+    .prose-project :global(a:hover) {
+        color: var(--color-mocha-sky);
+    }
+
+    .prose-project :global(hr) {
+        margin: 3rem 0;
+        border: none;
+        border-top: 1px solid var(--color-mocha-surface1);
+    }
+
+    .prose-project :global(strong) {
+        color: var(--color-mocha-text);
+        font-weight: 600;
+    }
+
+    .prose-project :global(table) {
+        width: 100%;
+        margin: 1.75rem 0;
+        border-collapse: collapse;
+        font-size: 0.95em;
+    }
+
+    .prose-project :global(th),
+    .prose-project :global(td) {
+        padding: 0.6rem 0.8rem;
+        border: 1px solid var(--color-mocha-surface1);
+        text-align: left;
+    }
+
+    .prose-project :global(th) {
+        background-color: var(--color-mocha-surface0);
+        color: var(--color-mocha-text);
+    }
+
+    @media (max-width: 639px) {
+        .prose-project {
+            font-size: 1rem;
+        }
+
+        .prose-project :global(h2) {
+            margin-top: 2.5rem;
+            margin-bottom: 0.9rem;
+            padding-top: 1.25rem;
+            font-size: 1.3rem;
+        }
+
+        .prose-project :global(h3) {
+            margin-top: 1.9rem;
+            font-size: 1.05rem;
+        }
+
+        .prose-project :global(p) {
+            margin-bottom: 1.2rem;
+            line-height: 1.8;
+        }
+
+        .prose-project :global(img) {
+            margin: 1.75rem 0;
+            border-radius: 0.6rem;
+        }
+
+        .prose-project :global(img + em) {
+            margin-top: -1.25rem;
+            margin-bottom: 1.75rem;
+        }
+
+        .prose-project :global(pre) {
+            margin: 1.5rem -0.25rem;
+            padding: 1rem;
+            border-radius: 0.6rem;
+        }
+
+        .prose-project :global(blockquote) {
+            margin: 1.5rem 0;
+            padding-left: 1rem;
+        }
+
+        .prose-project :global(hr) {
+            margin: 2.25rem 0;
+        }
+
+        .prose-project :global(table) {
+            display: block;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+    }
 </style>

@@ -1,87 +1,95 @@
 ---
 import { Image } from "astro:assets";
 
-const skillItemClasses = "flex flex-col items-center justify-center m-2 p-2 rounded-xl bg-mocha-surface1 aspect-square hover:shadow-lg hover:scale-105 transition-all duration-200";
-const skillHeadingClasses = "mt-1 text-xl";
+const skillItemClasses =
+    "group relative flex aspect-square flex-col items-center justify-center gap-3 rounded-2xl border border-mocha-surface1/70 bg-mocha-surface0/50 p-4 text-center transition-all duration-300 hover:-translate-y-1 hover:border-mocha-surface2 hover:bg-mocha-surface0 hover:shadow-[0_18px_40px_-24px_rgba(0,0,0,0.8)]";
+const skillImageClasses =
+    "h-12 w-12 object-contain transition-transform duration-300 group-hover:scale-110 md:h-14 md:w-14";
+const skillHeadingClasses =
+    "text-sm font-medium text-mocha-subtext1 transition-colors duration-300 group-hover:text-mocha-text md:text-base";
 
-import csharp from '../assets/img/c-sharp.png';
-import java from '../assets/img/java.png';
-import php from '../assets/img/php.png';
+import csharp from "../assets/img/c-sharp.png";
+import java from "../assets/img/java.png";
+import php from "../assets/img/php.png";
 
-import js from '../assets/img/js.png';
-import python from '../assets/img/python.png';
-import htmlCss from '../assets/img/html-css.png';
+import js from "../assets/img/js.png";
+import python from "../assets/img/python.png";
+import htmlCss from "../assets/img/html-css.png";
 
-import linux from '../assets/img/linux.png';
-import shell from '../assets/img/terminal.png';
-import docker from '../assets/img/docker.png';
+import linux from "../assets/img/linux.png";
+import shell from "../assets/img/terminal.png";
+import docker from "../assets/img/docker.png";
 
-import git from '../assets/img/git.png';
-import sql from '../assets/img/sql.png';
-import networking from '../assets/img/networking.png';
+import git from "../assets/img/git.png";
+import sql from "../assets/img/sql.png";
+import networking from "../assets/img/networking.png";
 ---
 
-<div class="flex flex-col justify-center items-center" id="skills">
-
-    <div>
-        <h1 class="text-4xl font-bold text-mocha-red">Skills</h1>
+<section id="skills" class="mx-auto max-w-6xl scroll-mt-24 px-6 py-24 md:px-8 md:py-32">
+    <div class="reveal mb-12 md:mb-16">
+        <h2 class="text-3xl font-bold tracking-tight text-mocha-red md:text-4xl">Skills</h2>
+        <div class="mt-5 h-px w-16 bg-gradient-to-r from-mocha-red/70 to-transparent"></div>
     </div>
-    <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 my-10 text-center items-center">
-        
-        <!--First section -->
+
+    <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-5 md:grid-cols-4 lg:grid-cols-6">
         <div class={skillItemClasses}>
-            <Image src={csharp} width={csharp.width} height={csharp.height} alt="Csharp logo" />
-            <h2 class={skillHeadingClasses}>CSharp</h2>
+            <Image src={csharp} width={csharp.width} height={csharp.height} alt="Csharp logo" class={skillImageClasses} />
+            <h3 class={skillHeadingClasses}>CSharp</h3>
         </div>
 
         <div class={skillItemClasses}>
-            <Image src={java} width={java.width} height={java.height} alt="Java logo"/>
-            <h2 class={skillHeadingClasses}>Java</h2>
+            <Image src={java} width={java.width} height={java.height} alt="Java logo" class={skillImageClasses} />
+            <h3 class={skillHeadingClasses}>Java</h3>
         </div>
 
         <div class={skillItemClasses}>
-            <Image src={php} width={php.width} height={php.height} alt="PHP logo"/>
-            <h2 class={skillHeadingClasses}>PHP</h2>
+            <Image src={php} width={php.width} height={php.height} alt="PHP logo" class={skillImageClasses} />
+            <h3 class={skillHeadingClasses}>PHP</h3>
         </div>
 
-        <!--Second section -->
         <div class={skillItemClasses}>
-            <Image src={js} width={js.width} height={js.height} alt="JavaScript logo"/>
-            <h2 class={skillHeadingClasses}>JavaScript</h2>
+            <Image src={js} width={js.width} height={js.height} alt="JavaScript logo" class={skillImageClasses} />
+            <h3 class={skillHeadingClasses}>JavaScript</h3>
         </div>
+
         <div class={skillItemClasses}>
-            <Image src={python} width={python.width} height={python.height} alt="Python logo"/>
-            <h2 class={skillHeadingClasses}>Python</h2>
+            <Image src={python} width={python.width} height={python.height} alt="Python logo" class={skillImageClasses} />
+            <h3 class={skillHeadingClasses}>Python</h3>
         </div>
+
         <div class={skillItemClasses}>
-            <Image src={htmlCss} width={htmlCss.width} height={htmlCss.height} alt="HTML & CSS logo"/>
-            <h2 class={skillHeadingClasses}>HTML & CSS</h2>
+            <Image src={htmlCss} width={htmlCss.width} height={htmlCss.height} alt="HTML & CSS logo" class={skillImageClasses} />
+            <h3 class={skillHeadingClasses}>HTML & CSS</h3>
         </div>
-        <!--third section -->
+
         <div class={skillItemClasses}>
-            <Image src={linux} width={linux.width} height={linux.height} alt="Linux logo"/>
-            <h2 class={skillHeadingClasses}>Linux</h2>
+            <Image src={linux} width={linux.width} height={linux.height} alt="Linux logo" class={skillImageClasses} />
+            <h3 class={skillHeadingClasses}>Linux</h3>
         </div>
+
         <div class={skillItemClasses}>
-            <Image src={shell} width={shell.width} height={shell.height} alt="Powershell & Bash logo"/>
-            <h2 class={skillHeadingClasses}>Powershell & Bash</h2>
+            <Image src={shell} width={shell.width} height={shell.height} alt="Powershell & Bash logo" class={skillImageClasses} />
+            <h3 class={skillHeadingClasses}>Powershell & Bash</h3>
         </div>
+
         <div class={skillItemClasses}>
-            <Image src={docker} width={docker.width} height={docker.height} alt="Docker logo"/>
-            <h2 class={skillHeadingClasses}>Docker</h2>
+            <Image src={docker} width={docker.width} height={docker.height} alt="Docker logo" class={skillImageClasses} />
+            <h3 class={skillHeadingClasses}>Docker</h3>
         </div>
-        <!--fourth section -->
+
         <div class={skillItemClasses}>
-            <Image src={networking} width={networking.width} height={networking.height} alt="Networking logo"/>
-            <h2 class={skillHeadingClasses}>Networking</h2>
+            <Image src={networking} width={networking.width} height={networking.height} alt="Networking logo" class={skillImageClasses} />
+            <h3 class={skillHeadingClasses}>Networking</h3>
         </div>
+
         <div class={skillItemClasses}>
-            <Image src={git} width={git.width} height={git.height} alt="Git logo"/>
-            <h2 class={skillHeadingClasses}>Git</h2>
+            <Image src={git} width={git.width} height={git.height} alt="Git logo" class={skillImageClasses} />
+            <h3 class={skillHeadingClasses}>Git</h3>
         </div>
+
         <div class={skillItemClasses}>
-            <Image src={sql} width={sql.width} height={sql.height} alt="SQL logo"/>
-            <h2 class={skillHeadingClasses}>SQL</h2>
+            <Image src={sql} width={sql.width} height={sql.height} alt="SQL logo" class={skillImageClasses} />
+            <h3 class={skillHeadingClasses}>SQL</h3>
         </div>
     </div>
-</div>
+</section>

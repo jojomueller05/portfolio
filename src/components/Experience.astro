@@ -1,47 +1,78 @@
 ---
-
+const entries = [
+    {
+        date: "2021-2025",
+        title: "Betriebsinformatiker EFZ",
+        organisation: "Lehner-Versand AG, Schenkon Switzerland",
+        description: "Entry into computer science...",
+    },
+    {
+        date: "29.06.2026 - 22.04.2027",
+        title: "Soldier",
+        organisation: "Swiss Armed Forces",
+        description: "Infantryman (Continuous Service)",
+    },
+];
 ---
 
-<div class="mt-[50vh] h-screen" id="experinece">
-    <h1 class="text-4xl font-bold my-5 text-center text-mocha-peach">Experience</h1>
+<section id="experience" class="mx-auto max-w-6xl scroll-mt-24 px-6 py-24 md:px-8 md:py-32">
+    <div class="reveal mb-12 md:mb-16">
+        <h2 class="text-3xl font-bold tracking-tight text-mocha-peach md:text-4xl">Experience</h2>
+        <div class="mt-5 h-px w-16 bg-gradient-to-r from-mocha-peach/70 to-transparent"></div>
+    </div>
 
-    <div class="hidden md:flex justify-center items-center mt-20">
-        <div class="w-4 h-4 bg-mocha-peach rounded-full"></div>
-    </div> 
-    <div class="container mx-auto px-4 py-2">
-        <div class="w-2/4 flex justify-center mb-2 md:hidden">
-
-        <div class="w-4 h-4 bg-mocha-peach rounded-full"></div>
-        </div>
-        <!-- Timeline container -->
-        <div class="relative">
-
-            <!-- Timeline line -->
-            <div
-                class="absolute h-full border-l-2 border-gray-300 md:left-1/2 left-1/4 transform -translate-x-1/2"
-            >
-
-            </div>
-
-            <!-- Timeline items -->
-            <div class="space-y-8">
-                <!-- first item -->
-                <div class="flex items-center w-full">
-                    <div class="md:w-1/2 w-1/4 text-right mr-10">
-                        <!-- Dot on the timeline -->
-                        <div class="">2021-2025</div>
+    <div class="reveal mx-auto max-w-3xl [transition-delay:80ms]">
+        <div class="grid grid-cols-[14px_1fr] gap-x-6 gap-y-6 md:gap-x-8 md:gap-y-8">
+            {entries.map((entry, index) => (
+                <Fragment>
+                    <!-- Timeline rail -->
+                    <div class="relative">
+                        {index === entries.length - 1 ? (
+                            <>
+                                <!-- Orange progress up to the latest dot -->
+                                <div
+                                    aria-hidden="true"
+                                    class="absolute left-1/2 top-0 h-[39px] w-0.5 -translate-x-1/2 rounded-full bg-mocha-peach"
+                                ></div>
+                                <!-- Grey fade below the latest dot -->
+                                <div
+                                    aria-hidden="true"
+                                    class="absolute bottom-2 left-1/2 top-[39px] w-0.5 -translate-x-1/2 bg-gradient-to-b from-mocha-surface2 to-transparent"
+                                ></div>
+                                <span
+                                    aria-hidden="true"
+                                    class="absolute left-1/2 top-8 h-3.5 w-3.5 -translate-x-1/2 rounded-full bg-mocha-peach ring-4 ring-mocha-base"
+                                ></span>
+                            </>
+                        ) : (
+                            <div
+                                aria-hidden="true"
+                                class="absolute -bottom-6 left-1/2 top-2 w-0.5 -translate-x-1/2 rounded-full bg-mocha-peach md:-bottom-8"
+                            ></div>
+                        )}
                     </div>
-                    <div class="md:w-1/2 w-3/4 pl-8 mt-6">
-                        <h3 class="font-semibold text-lg">
-                            Betriebsinformatiker EFZ
+
+                    <article class="rounded-2xl border border-mocha-surface1/70 bg-mocha-surface0/50 p-6 transition-colors duration-300 hover:border-mocha-peach/30 hover:bg-mocha-surface0 md:p-8">
+                        <div class="mb-4 flex flex-wrap items-center gap-3">
+                            <span class="rounded-full border border-mocha-peach/30 bg-mocha-peach/10 px-3 py-1 text-xs font-medium tracking-wide text-mocha-peach">
+                                {entry.date}
+                            </span>
+                        </div>
+
+                        <h3 class="text-xl font-semibold text-mocha-text md:text-2xl">
+                            {entry.title}
                         </h3>
-                        <p class="text-mocha-subtext0">Lehner-Versand AG, Schenkon Switzerland</p>
-                        <p class="text-mocha-subtext1">
-                            Entry into computer science...
+                        <p class="mt-1.5 text-sm text-mocha-subtext0 md:text-base">
+                            {entry.organisation}
                         </p>
-                    </div>
-                </div>
-            </div>
+                        {entry.description && (
+                            <p class="mt-4 leading-relaxed text-mocha-subtext1">
+                                {entry.description}
+                            </p>
+                        )}
+                    </article>
+                </Fragment>
+            ))}
         </div>
     </div>
-</div>
+</section>

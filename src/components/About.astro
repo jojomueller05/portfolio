@@ -1,58 +1,68 @@
 ---
-import {Image} from "astro:assets";
-import proudImage from '../assets/img/undraw_feeling-proud_tdos.svg';
+import { Image } from "astro:assets";
+import proudImage from "../assets/img/undraw_feeling-proud_tdos.svg";
 ---
-<style>
-    @keyframes slideInFromLeft {
-      0% {
-        transform: translateX(-100%);
-      }
-      100% {
-        transform: translateX(0);
-      }
-    }
-    .animate-slide-in-left {
-      animation: slideInFromLeft 1s ease-out forwards; /* Slower animation (2 seconds) */
-    }
-    @keyframes slideInFromRight {
-      0% {
-        transform: translateX(100%);
-      }
-      100% {
-        transform: translateX(0);
-      }
-    }
-    .animate-slide-in-right {
-      animation: slideInFromRight 1s ease-out forwards; /* Slower animation (2 seconds) */
-    }
-  </style>
 
-<div class="h-screen flex flex-col md:flex-row items-center justify-center text-center md:text-left mx-5 md:mx-20">
-    <!-- Textbereich -->
-    <div class="md:w-1/2 mb-10 md:mb-0 animate-slide-in-left">
-        <h1 class="text-4xl my-5">
-            I'm <b class="text-mocha-blue text-6xl font-lily-script">Joël Julien Müller</b>
-        </h1>
-        <p class="text-2xl my-4">Junior Full Stack Developer</p>
-        <a href="https://www.linkedin.com/in/jo%C3%ABl-julien-m%C3%BCller-27029222b/" target="_blank" class="text-xl p-2 rounded border-2 border-mocha-maroon text-mocha-maroon cursor-pointer transform transition-transform duration-300 hover:translate-x-2 hover:bg-mocha-maroon hover:text-mocha-base">
-            Contact me
-        </a>
+<!-- Hero -->
+<section class="relative overflow-hidden">
+    <div class="mx-auto grid min-h-[calc(100svh-5rem)] max-w-6xl items-center gap-16 px-6 py-20 md:grid-cols-2 md:px-8">
+        <div class="reveal relative z-10 text-center md:text-left">
+            <h1 class="text-balance text-3xl leading-snug text-mocha-text sm:text-4xl">
+                I'm
+                <span class="mt-2 block font-lily-script text-6xl leading-[1.05] text-mocha-blue sm:text-7xl lg:text-8xl">
+                    Joël Julien Müller
+                </span>
+            </h1>
+
+            <p class="mt-6 text-lg tracking-wide text-mocha-subtext1 sm:text-xl">
+                Junior Full Stack Developer
+            </p>
+
+            <a
+                href="https://www.linkedin.com/in/jo%C3%ABl-julien-m%C3%BCller-27029222b/"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="group mt-10 inline-flex items-center gap-2 rounded-full border border-mocha-maroon/60 px-7 py-3 text-base text-mocha-maroon transition-all duration-300 hover:-translate-y-0.5 hover:border-mocha-maroon hover:bg-mocha-maroon hover:text-mocha-base hover:shadow-[0_10px_30px_-12px_rgba(235,160,172,0.6)]"
+            >
+                Contact me
+                <i class="bi bi-arrow-up-right text-sm transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" aria-hidden="true"></i>
+            </a>
+        </div>
+
+        <div class="reveal relative flex justify-center [transition-delay:120ms]">
+            <!-- Ambient glow behind the illustration -->
+            <div
+                aria-hidden="true"
+                class="pointer-events-none absolute inset-0 m-auto h-72 w-72 rounded-full bg-mocha-blue/10 blur-3xl md:h-96 md:w-96"
+            ></div>
+
+            <Image
+                src={proudImage}
+                width={proudImage.width}
+                height={proudImage.height}
+                alt="Proud image"
+                class="relative w-full max-w-sm drop-shadow-[0_18px_40px_rgba(0,0,0,0.35)] md:max-w-md"
+            />
+        </div>
     </div>
+</section>
 
-    <!-- Bildbereich -->
-    <div class="md:w-1/2 flex justify-center animate-slide-in-right">
-        <Image src={proudImage} width={proudImage.width} height={proudImage.height} alt="Proud image" class="w-2/3 max-w-xs md:max-w-sm"/>
+<!-- About -->
+<section id="about" class="mx-auto max-w-6xl scroll-mt-24 px-6 py-24 md:px-8 md:py-32">
+    <div class="grid gap-10 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.6fr)] md:gap-20">
+        <div class="reveal">
+            <h2 class="text-3xl font-bold tracking-tight text-mocha-sky md:text-4xl">
+                About
+            </h2>
+            <div class="mt-5 h-px w-16 bg-gradient-to-r from-mocha-sky/70 to-transparent"></div>
+        </div>
+
+        <div class="reveal [transition-delay:80ms]">
+            <p class="text-pretty text-lg leading-[1.9] text-mocha-subtext1 md:text-xl">
+                Hello! My name is Joël Julien Müller, and I am a Junior Full Stack Developer with a passion for
+                building reliable and innovative applications. I started my journey as a IT apprentice at Lehner-Versand AG.
+                I've got experience in backend and web development and I'm interested in learning new programming languages and technologies.
+            </p>
+        </div>
     </div>
-</div>
-
-<div class="flex flex-col justify-center items-center h-screen" id="about">
-    <div class="max-w-2/3">
-        <h1 class="text-4xl font-bold my-5 text-mocha-sky">About</h1>
-        <p>
-            Hello! My name is Joël Julien Müller, and I am a Junior Full Stack Developer with a passion for 
-            building reliable and innovative applications. I started my journey as a IT apprentice at Lehner-Versand AG.
-            I've got experience in backend and web development and I'm interested in learning new programming languages and technologies.
-        </p>
-    </div>
-</div>
-
+</section>
